@@ -47,8 +47,13 @@ class HabilidadePorCategoriaFilter(admin.SimpleListFilter):
         habilidades = set()
         for c in Curriculo.objects.all():
             if c.dados_extraidos and 'habilidades' in c.dados_extraidos:
-                for cat, lista in c.dados_extraidos['habilidades'].items():
-                    habilidades.update([f'{cat}:{h}' for h in lista])
+                habs = c.dados_extraidos['habilidades']
+                if isinstance(habs, dict):
+                    for cat, lista in habs.items():
+                        habilidades.update([f'{cat}:{h}' for h in lista])
+                elif isinstance(habs, list):
+                    # Caso 'habilidades' venha como lista simples
+                    habilidades.update([f'geral:{h}' for h in habs])
         return [(h, h.replace(':', ' - ').title()) for h in sorted(habilidades)]
 
     def queryset(self, request, queryset):
@@ -76,11 +81,39 @@ class IdiomaFilter(admin.SimpleListFilter):
         return queryset
 
 @admin.register(Curriculo)
+
 class CurriculoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'email', 'vaga', 'get_classificacao_ia', 'aprovado', 'data_envio')
     search_fields = ('nome', 'email')
-    list_filter = ('vaga', 'aprovado', ClassificacaoIAFilter, CategoriaHabilidadeFilter, HabilidadePorCategoriaFilter, IdiomaFilter)
-    readonly_fields = ('dados_extraidos', 'analise_ia', 'arquivo')
+    list_filter = (
+        'vaga',
+        'aprovado',
+        ClassificacaoIAFilter,
+        CategoriaHabilidadeFilter,
+        HabilidadePorCategoriaFilter,
+        IdiomaFilter
+        )
+    
+    readonly_fields = (
+        'dados_extraidos',
+        'analise_ia',
+        'arquivo',
+        'data_envio',
+        'get_classificacao_ia',
+        'get_justificativa_ia'
+        )
+
+    fieldsets = (
+        (None, {
+            'fields': ('nome', 'email', 'vaga', 'arquivo', 'aprovado')
+        }),
+        ('Dados Extraídos', {
+            'fields': ('dados_extraidos',)
+        }),
+        ('Análise IA', {
+            'fields': ('analise_ia',)
+        }),
+    )
 
     def get_classificacao_ia(self, obj):
         if obj.analise_ia and isinstance(obj.analise_ia, dict):
@@ -93,15 +126,3 @@ class CurriculoAdmin(admin.ModelAdmin):
             return obj.analise_ia.get('justificativa', '-')
         return '-'
     get_justificativa_ia.short_description = 'Justificativa IA'
-
-    fieldsets = (
-        (None, {
-            'fields': ('nome', 'email', 'vaga', 'arquivo', 'aprovado', 'data_envio')
-        }),
-        ('Dados Extraídos', {
-            'fields': ('dados_extraidos',)
-        }),
-        ('Análise IA', {
-            'fields': ('analise_ia', 'get_classificacao_ia', 'get_justificativa_ia')
-        }),
-    )

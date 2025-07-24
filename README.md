@@ -22,8 +22,8 @@ Este projeto é um MVP de uma plataforma para recebimento, análise e filtragem 
 
 1. **Clone o repositório:**
    ```bash
-   git clone <url-do-repositorio>
-   cd <pasta-do-projeto>
+   git clone https://github.com/ramonzeraa/curriculum_analyzer
+   cd curriculos
    ```
 
 2. **Crie e ative o ambiente virtual:**
@@ -83,13 +83,10 @@ Este projeto é um MVP de uma plataforma para recebimento, análise e filtragem 
 ```
 
 ## Próximos Passos / Futuras Funcionalidades
-- Extração automática de dados dos currículos (PDF/DOCX)
-- Filtragem automática baseada em critérios configuráveis
 - Notificações automáticas por e-mail (OAuth 2.0)
 - Exportação de dados para Power BI
 - Integração com LinkedIn e outros sistemas de RH
 - Dashboard para gestores
-- Implementação de IA para análise semântica dos currículos
 
 ## Observações
 - O projeto segue as boas práticas de privacidade e LGPD.

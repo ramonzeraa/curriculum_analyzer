@@ -41,9 +41,19 @@ def analisar_curriculo_gemini(texto, vaga=None):
     if not GEMINI_API_KEY:
         return {'erro': 'Chave da API Gemini não configurada.'}
     prompt = f"""
-Você é um assistente de RH. Analise o seguinte currículo para a vaga: {vaga if vaga else 'N/A'}.
-Classifique o candidato como: aprovado, reprovado ou análise manual. Justifique a decisão em até 3 linhas.
-Retorne no formato JSON:
+Você é um especialista em recrutamento e seleção, com experiência em análise técnica e de RH, similar ao trabalho realizado em plataformas como Gupy, Kenoby e Recrutei.
+
+Sua tarefa é analisar de forma completa o seguinte currículo, considerando todos os aspectos relevantes para a vaga informada: hard skills, soft skills, experiências profissionais, formação acadêmica, idiomas, tempo de experiência e aderência à descrição da vaga, incluindo requisitos e responsabilidades.
+
+Vaga: "{vaga if vaga else 'N/A'}".
+
+Baseado nesta análise, classifique o candidato em uma das categorias:
+
+- "aprovado": candidato atende bem aos requisitos e pode avançar para a próxima fase;
+- "reprovado": candidato não atende aos critérios mínimos da vaga;
+- "analise manual": currículo necessita de avaliação humana por falta de informações claras ou dúvidas na interpretação.
+
+Retorne sua resposta **exclusivamente em JSON**, com a seguinte estrutura:
 {{"classificacao": "aprovado|reprovado|analise manual", "justificativa": "..."}}
 
 Currículo:
