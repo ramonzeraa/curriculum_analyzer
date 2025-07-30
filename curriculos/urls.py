@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.views.generic import RedirectView
-from vagas.views import enviar_curriculo, dashboard_curriculos, detalhes_curriculo, listar_vagas
+from vagas.views import enviar_curriculo, dashboard_curriculos, detalhes_curriculo, listar_vagas, api_curriculos_recentes, api_marcar_email_enviado
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -28,6 +28,10 @@ urlpatterns = [
     path('enviar-curriculo/', enviar_curriculo, name='enviar_curriculo'),
     path('dashboard/', dashboard_curriculos, name='dashboard_curriculos'),
     path('curriculo/<int:curriculo_id>/', detalhes_curriculo, name='detalhes_curriculo'),
+    
+    # APIs para N8N
+    path('api/curriculos-recentes/', api_curriculos_recentes, name='api_curriculos_recentes'),
+    path('api/marcar-email-enviado/', api_marcar_email_enviado, name='api_marcar_email_enviado'),
 ]
 
 if settings.DEBUG:

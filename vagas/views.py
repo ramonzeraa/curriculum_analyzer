@@ -5,6 +5,10 @@ from .utils import extrair_texto_pdf, extrair_texto_docx, extrair_info_curriculo
 import os
 import tempfile
 from django.db import models
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+import json
 
 # Create your views here.
 
@@ -107,3 +111,76 @@ def listar_vagas(request):
     }
     
     return render(request, 'vagas/listar_vagas.html', context)
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def api_curriculos_recentes(request):
+    """API para N8N - Retorna currículos recentes que precisam de email"""
+    try:
+        # Busca currículos dos últimos 7 dias que ainda não receberam email
+        from datetime import datetime, timedelta
+        data_limite = datetime.now() - timedelta(days=7)
+        
+        curriculos = Curriculo.objects.filter(
+            data_envio__gte=data_limite,
+            email_enviado=False  # Novo campo que vamos adicionar
+        ).order_by('-data_envio')
+        
+        dados = []
+        for curriculo in curriculos:
+            dados.append({
+                'id': curriculo.id,
+                'nome': curriculo.nome,
+                'email': curriculo.email,
+                'vaga_titulo': curriculo.vaga.titulo if curriculo.vaga else 'Vaga Geral',
+                'data_envio': curriculo.data_envio.isoformat(),
+                'classificacao_ia': curriculo.analise_ia.get('classificacao', 'Não analisado') if curriculo.analise_ia else 'Não analisado',
+                'compatibilidade': curriculo.analise_ia.get('compatibilidade', 0) if curriculo.analise_ia else 0,
+                'justificativa': curriculo.analise_ia.get('justificativa', '') if curriculo.analise_ia else '',
+            })
+        
+        return JsonResponse({
+            'status': 'success',
+            'curriculos': dados,
+            'total': len(dados)
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_marcar_email_enviado(request):
+    """API para N8N - Marca currículo como tendo recebido email"""
+    try:
+        data = json.loads(request.body)
+        curriculo_id = data.get('curriculo_id')
+        
+        if not curriculo_id:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'curriculo_id é obrigatório'
+            }, status=400)
+        
+        curriculo = Curriculo.objects.get(id=curriculo_id)
+        curriculo.email_enviado = True
+        curriculo.save()
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': f'Email marcado como enviado para currículo {curriculo_id}'
+        })
+        
+    except Curriculo.DoesNotExist:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Currículo não encontrado'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
