@@ -43,18 +43,51 @@ def analisar_curriculo_gemini(texto, vaga=None):
     prompt = f"""
 Você é um especialista em recrutamento e seleção, com experiência em análise técnica e de RH, similar ao trabalho realizado em plataformas como Gupy, Kenoby e Recrutei.
 
-Sua tarefa é analisar de forma completa o seguinte currículo, considerando todos os aspectos relevantes para a vaga informada: hard skills, soft skills, experiências profissionais, formação acadêmica, idiomas, tempo de experiência e aderência à descrição da vaga, incluindo requisitos e responsabilidades.
+Sua tarefa é analisar o currículo abaixo com base **na vaga informada**. Considere os seguintes pontos para uma análise completa:
+- Habilidades técnicas (hard skills)
+- Competências interpessoais (soft skills)
+- Experiências profissionais
+- Formação acadêmica
+- Idiomas
+- Tempo de experiência
+- Aderência total aos **requisitos** e **descrição** da vaga
 
 Vaga: "{vaga if vaga else 'N/A'}".
 
-Baseado nesta análise, classifique o candidato em uma das categorias:
+**Instruções obrigatórias:**
+1. Classifique o candidato com base na aderência à vaga como:
+   - `"aprovado"`: atende bem aos requisitos
+   - `"reprovado"`: não atende aos critérios mínimos
+   - `"analise manual"`: ausência de informações ou ambiguidade que exige avaliação humana
 
-- "aprovado": candidato atende bem aos requisitos e pode avançar para a próxima fase;
-- "reprovado": candidato não atende aos critérios mínimos da vaga;
-- "analise manual": currículo necessita de avaliação humana por falta de informações claras ou dúvidas na interpretação.
+2. Calcule o **nível de compatibilidade** entre o currículo e a vaga, em porcentagem (%).
 
-Retorne sua resposta **exclusivamente em JSON**, com a seguinte estrutura:
-{{"classificacao": "aprovado|reprovado|analise manual", "justificativa": "..."}}
+3. Forneça **justificativa profissional** clara e direta para a classificação, sem tom empático.
+
+4. Apresente **feedbacks detalhados sobre como melhorar o currículo** especificamente para esta vaga, organizados por tópicos:
+   - Experiência Profissional
+   - Habilidades Técnicas
+   - Formação Acadêmica
+   - Idiomas
+   - Estrutura e Escrita
+
+5. A resposta **deve ser exclusivamente em português**, mesmo que o currículo esteja em outro idioma.
+
+Retorne o resultado **exclusivamente no formato JSON**, exatamente nesta estrutura:
+
+```json
+{{
+  "classificacao": "aprovado | reprovado | analise manual",
+  "compatibilidade": "80%",
+  "justificativa": "Texto objetivo explicando os pontos fortes, deficiências e decisões tomadas com base na vaga.",
+  "melhorias_curriculo": {{
+    "experiencia_profissional": "Sugestões claras e objetivas...",
+    "habilidades_tecnicas": "Sugestões...",
+    "formacao_academica": "Sugestões...",
+    "idiomas": "Sugestões...",
+    "estrutura_e_escrita": "Sugestões sobre como organizar melhor o texto, torná-lo mais atrativo e adequado ao perfil buscado."
+  }}
+}}
 
 Currículo:
 {texto}

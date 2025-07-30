@@ -1,0 +1,16 @@
+# Configurações do Django
+SECRET_KEY=sua_chave_secreta_django_aqui
+DEBUG=True
+
+# API Google Gemini
+GEMINI_API_KEY=sua_chave_da_api_gemini_aqui
+
+# Configurações de Banco de Dados (opcional)
+# DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+
+# Configurações de Email (opcional)
+# EMAIL_HOST=smtp.gmail.com
+# EMAIL_PORT=587
+# EMAIL_USE_TLS=True
+# EMAIL_HOST_USER=seu_email@gmail.com
+# EMAIL_HOST_PASSWORD=sua_senha_de_app 
