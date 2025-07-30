@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vagas Disponíveis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .nav-buttons {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9em;
+            transition: background 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .vagas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .vaga-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .vaga-card:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+        }
+
+        .vaga-header {
+            margin-bottom: 20px;
+        }
+
+        .vaga-titulo {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .vaga-data {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .vaga-descricao {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            max-height: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .vaga-descricao::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 40px;
+            height: 20px;
+            background: linear-gradient(to right, transparent, white);
+        }
+
+        .vaga-requisitos {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .requisitos-titulo {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .requisitos-texto {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .vaga-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .btn-candidatar {
+            flex: 1;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .empty-state p {
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .vagas-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .vaga-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💼 Vagas Disponíveis</h1>
+            <p>Encontre a oportunidade perfeita para sua carreira</p>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="{% url 'dashboard_curriculos' %}" class="btn">📊 Dashboard</a>
+            <a href="/admin/" class="btn btn-secondary">⚙️ Administração</a>
+        </div>
+
+        <div class="content">
+            {% if vagas %}
+            <div class="vagas-grid">
+                {% for vaga in vagas %}
+                <div class="vaga-card">
+                    <div class="vaga-header">
+                        <div class="vaga-titulo">{{ vaga.titulo }}</div>
+                        <div class="vaga-data">Publicada em {{ vaga.data_criacao|date:"d/m/Y" }}</div>
+                    </div>
+                    
+                    <div class="vaga-descricao">
+                        {{ vaga.descricao|truncatewords:30 }}
+                    </div>
+                    
+                    <div class="vaga-requisitos">
+                        <div class="requisitos-titulo">📋 Requisitos:</div>
+                        <div class="requisitos-texto">
+                            {{ vaga.requisitos|truncatewords:20 }}
+                        </div>
+                    </div>
+                    
+                    <div class="vaga-actions">
+                        <a href="{% url 'enviar_curriculo' %}?vaga={{ vaga.id }}" class="btn btn-success btn-candidatar">
+                            🚀 Candidatar-se
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <h3>📭 Nenhuma vaga disponível no momento</h3>
+                <p>Não há vagas ativas no sistema. Volte mais tarde!</p>
+                <a href="/admin/" class="btn btn-secondary">Gerenciar Vagas</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html> 

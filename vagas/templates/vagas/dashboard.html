@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Análise de Currículos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .curriculos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .curriculo-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .curriculo-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+        }
+
+        .curriculo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .curriculo-nome {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .classificacao {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .classificacao.aprovado {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .classificacao.reprovado {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .classificacao.analise-manual {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .curriculo-info {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .curriculo-vaga {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .compatibilidade {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .compatibilidade-label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .compatibilidade-valor {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9em;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .nav-buttons {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-buttons .btn {
+            margin: 0 10px;
+        }
+
+        .vagas-populares {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .vaga-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .vaga-item:last-child {
+            border-bottom: none;
+        }
+
+        .vaga-titulo {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .vaga-count {
+            background: #667eea;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8em;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .curriculos-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Dashboard de Currículos</h1>
+            <p>Análise inteligente de candidaturas com IA</p>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="{% url 'enviar_curriculo' %}" class="btn">📝 Enviar Currículo</a>
+            <a href="/admin/" class="btn btn-secondary">⚙️ Administração</a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_curriculos }}</div>
+                <div class="stat-label">Total de Currículos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ aprovados }}</div>
+                <div class="stat-label">Aprovados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ reprovados }}</div>
+                <div class="stat-label">Reprovados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ classificacoes_ia.aprovado }}</div>
+                <div class="stat-label">Aprovados pela IA</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>🎯 Vagas Mais Populares</h2>
+                <div class="vagas-populares">
+                    {% for vaga in vagas_populares %}
+                    <div class="vaga-item">
+                        <span class="vaga-titulo">{{ vaga.titulo }}</span>
+                        <span class="vaga-count">{{ vaga.num_curriculos }} currículos</span>
+                    </div>
+                    {% empty %}
+                    <p>Nenhuma vaga encontrada.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📋 Currículos Recentes</h2>
+                <div class="curriculos-grid">
+                    {% for curriculo in curriculos %}
+                    <div class="curriculo-card">
+                        <div class="curriculo-header">
+                            <span class="curriculo-nome">{{ curriculo.nome }}</span>
+                            {% if curriculo.analise_ia and curriculo.analise_ia.classificacao %}
+                                <span class="classificacao {{ curriculo.analise_ia.classificacao|lower|cut:' ' }}">
+                                    {{ curriculo.analise_ia.classificacao }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="curriculo-info">
+                            📧 {{ curriculo.email }}<br>
+                            📅 {{ curriculo.data_envio|date:"d/m/Y H:i" }}
+                        </div>
+                        
+                        <div class="curriculo-vaga">
+                            🎯 {{ curriculo.vaga.titulo }}
+                        </div>
+                        
+                        {% if curriculo.analise_ia and curriculo.analise_ia.compatibilidade %}
+                        <div class="compatibilidade">
+                            <span class="compatibilidade-label">Compatibilidade:</span>
+                            <span class="compatibilidade-valor">{{ curriculo.analise_ia.compatibilidade }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        <a href="{% url 'detalhes_curriculo' curriculo.id %}" class="btn">
+                            Ver Detalhes
+                        </a>
+                    </div>
+                    {% empty %}
+                    <p>Nenhum currículo encontrado.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

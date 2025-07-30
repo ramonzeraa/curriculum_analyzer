@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Currículo - {{ curriculo.nome }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .nav-buttons {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9em;
+            transition: background 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .classificacao-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .classificacao-badge.aprovado {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .classificacao-badge.reprovado {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .classificacao-badge.analise-manual {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .compatibilidade-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .compatibilidade-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.3s ease;
+        }
+
+        .habilidades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .habilidade-categoria {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .categoria-titulo {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .habilidade-tag {
+            display: inline-block;
+            background: #e9ecef;
+            color: #495057;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin: 2px;
+        }
+
+        .melhorias-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .melhorias-section h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .melhoria-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .melhoria-titulo {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .melhoria-descricao {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .justificativa-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .justificativa-titulo {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .justificativa-texto {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .habilidades-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 {{ curriculo.nome }}</h1>
+            <p>Detalhes completos da análise do currículo</p>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="{% url 'dashboard_curriculos' %}" class="btn">📊 Dashboard</a>
+            <a href="{% url 'enviar_curriculo' %}" class="btn">📝 Enviar Currículo</a>
+            <a href="/admin/" class="btn btn-secondary">⚙️ Administração</a>
+        </div>
+
+        <div class="content">
+            <!-- Informações Básicas -->
+            <div class="section">
+                <h2>👤 Informações Básicas</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Nome</div>
+                        <div class="info-value">{{ curriculo.nome }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">E-mail</div>
+                        <div class="info-value">{{ curriculo.email }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Vaga</div>
+                        <div class="info-value">{{ curriculo.vaga.titulo }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Data de Envio</div>
+                        <div class="info-value">{{ curriculo.data_envio|date:"d/m/Y H:i" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Análise da IA -->
+            {% if curriculo.analise_ia %}
+            <div class="section">
+                <h2>🤖 Análise da Inteligência Artificial</h2>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Classificação</div>
+                        <div class="info-value">
+                            <span class="classificacao-badge {{ curriculo.analise_ia.classificacao|lower|cut:' ' }}">
+                                {{ curriculo.analise_ia.classificacao }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Compatibilidade</div>
+                        <div class="info-value">
+                            {{ curriculo.analise_ia.compatibilidade }}
+                            {% if curriculo.analise_ia.compatibilidade %}
+                                {% with compatibilidade=curriculo.analise_ia.compatibilidade|cut:'%' %}
+                                <div class="compatibilidade-bar">
+                                    <div class="compatibilidade-fill" style="width: {{ compatibilidade }}%"></div>
+                                </div>
+                                {% endwith %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% if curriculo.analise_ia.justificativa %}
+                <div class="justificativa-box">
+                    <div class="justificativa-titulo">Justificativa da Análise</div>
+                    <div class="justificativa-texto">{{ curriculo.analise_ia.justificativa }}</div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Dados Extraídos -->
+            {% if curriculo.dados_extraidos %}
+            <div class="section">
+                <h2>🔍 Dados Extraídos do Currículo</h2>
+                
+                {% if curriculo.dados_extraidos.habilidades %}
+                <h3>💼 Habilidades Identificadas</h3>
+                <div class="habilidades-grid">
+                    {% for categoria, habilidades in curriculo.dados_extraidos.habilidades.items %}
+                    <div class="habilidade-categoria">
+                        <div class="categoria-titulo">{{ categoria|title }}</div>
+                        {% for habilidade in habilidades %}
+                        <span class="habilidade-tag">{{ habilidade }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if curriculo.dados_extraidos.idiomas %}
+                <h3>🌍 Idiomas</h3>
+                <div class="info-grid">
+                    {% for idioma in curriculo.dados_extraidos.idiomas %}
+                    <div class="info-item">
+                        <span class="habilidade-tag">{{ idioma }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if curriculo.dados_extraidos.nome_extraido %}
+                <div class="info-item">
+                    <div class="info-label">Nome Extraído</div>
+                    <div class="info-value">{{ curriculo.dados_extraidos.nome_extraido }}</div>
+                </div>
+                {% endif %}
+
+                {% if curriculo.dados_extraidos.email_extraido %}
+                <div class="info-item">
+                    <div class="info-label">E-mail Extraído</div>
+                    <div class="info-value">{{ curriculo.dados_extraidos.email_extraido }}</div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Sugestões de Melhoria -->
+            {% if curriculo.analise_ia and curriculo.analise_ia.melhorias_curriculo %}
+            <div class="section">
+                <h2>📈 Sugestões de Melhoria</h2>
+                <div class="melhorias-section">
+                    {% for categoria, sugestao in curriculo.analise_ia.melhorias_curriculo.items %}
+                    <div class="melhoria-item">
+                        <div class="melhoria-titulo">{{ categoria|title|cut:'_' }}</div>
+                        <div class="melhoria-descricao">{{ sugestao }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Arquivo -->
+            <div class="section">
+                <h2>📎 Arquivo do Currículo</h2>
+                <div class="info-item">
+                    <div class="info-label">Arquivo</div>
+                    <div class="info-value">
+                        <a href="{{ curriculo.arquivo.url }}" class="btn" target="_blank">
+                            📄 Visualizar Currículo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
