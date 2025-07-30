@@ -21,6 +21,7 @@ class Curriculo(models.Model):
     analise_ia = models.JSONField(null=True, blank=True)  # Resultado da IA Gemini
     aprovado = models.BooleanField(default=False)
     data_envio = models.DateTimeField(auto_now_add=True)
+    email_enviado = models.BooleanField(default=False)  # Controle de emails enviados
 
     def __str__(self):
         return f"{self.nome} - {self.vaga.titulo}"
