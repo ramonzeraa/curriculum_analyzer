@@ -17,14 +17,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.views.generic import RedirectView
-from vagas.views import enviar_curriculo
+from vagas.views import enviar_curriculo, dashboard_curriculos, detalhes_curriculo, listar_vagas
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('', RedirectView.as_view(url='/enviar-curriculo/', permanent=False)),
+    path('', RedirectView.as_view(url='/vagas/', permanent=False)),
     path('admin/', admin.site.urls),
+    path('vagas/', listar_vagas, name='listar_vagas'),
     path('enviar-curriculo/', enviar_curriculo, name='enviar_curriculo'),
+    path('dashboard/', dashboard_curriculos, name='dashboard_curriculos'),
+    path('curriculo/<int:curriculo_id>/', detalhes_curriculo, name='detalhes_curriculo'),
 ]
 
 if settings.DEBUG:
