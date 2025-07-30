@@ -16,6 +16,12 @@ Um sistema completo de recrutamento e seleção que utiliza inteligência artifi
 - **Detalhes Completos**: Análise detalhada de cada currículo
 - **Sugestões de Melhoria**: Feedback estruturado para candidatos
 
+### Automação com N8N
+- **APIs de Integração**: Endpoints para automação de emails
+- **Envio Automático**: Emails personalizados baseados na classificação da IA
+- **Templates Inteligentes**: Mensagens diferentes para aprovados, reprovados e em análise
+- **Controle de Status**: Rastreamento de emails enviados
+
 ## 🛠️ Tecnologias Utilizadas
 
 - **Backend**: Django 5.1
@@ -168,6 +174,22 @@ curriculos/
 3. Adicione a chave ao arquivo `.env`
 4. Reinicie o servidor
 
+### **Testando a API**
+```bash
+# Testar conectividade e funcionamento da API
+python manage.py test_gemini_api
+
+# Testar com texto personalizado
+python manage.py test_gemini_api --texto-teste "Seu texto de teste aqui"
+```
+
+### **Tratamento de Erros**
+O sistema inclui tratamento robusto de erros da API:
+- **Retry Automático**: 3 tentativas com delay progressivo
+- **Erro 503**: Aguarda e tenta novamente automaticamente
+- **Fallback**: Em caso de erro, classifica como "análise manual"
+- **Logs Detalhados**: Informações sobre tentativas e erros
+
 ## 🚀 Deploy
 
 ### Para Produção
@@ -192,6 +214,54 @@ DATABASE_URL=postgresql://user:pass@host:port/db
 4. Push para a branch
 5. Abra um Pull Request
 
+## 🗂️ Sistema de Limpeza Automática
+
+O sistema inclui funcionalidades para manter o armazenamento organizado e eficiente:
+
+### **Exclusão Automática de Arquivos**
+- **Signals Django**: Remove automaticamente arquivos físicos quando currículos são deletados
+- **Limpeza de Diretórios**: Remove diretórios vazios automaticamente
+- **Logs de Auditoria**: Registra todas as operações de exclusão
+
+### **Comandos de Limpeza**
+
+#### **Limpar Arquivos Órfãos**
+```bash
+# Verificar arquivos órfãos (modo teste)
+python manage.py cleanup_orphan_files --dry-run
+
+# Remover arquivos órfãos
+python manage.py cleanup_orphan_files
+
+# Forçar remoção sem confirmação
+python manage.py cleanup_orphan_files --force
+```
+
+#### **Limpar Currículos Antigos**
+```bash
+# Remover currículos com mais de 90 dias (padrão)
+python manage.py cleanup_old_curriculos
+
+# Remover currículos com mais de 30 dias
+python manage.py cleanup_old_curriculos --days 30
+
+# Remover apenas currículos reprovados antigos
+python manage.py cleanup_old_curriculos --status reprovado --days 60
+
+# Modo teste (não remove nada)
+python manage.py cleanup_old_curriculos --dry-run
+```
+
+### **Configuração Automática**
+Para configurar limpeza automática periódica, adicione ao cron do servidor:
+```bash
+# Limpar arquivos órfãos semanalmente
+0 2 * * 0 cd /path/to/project && python manage.py cleanup_orphan_files --force
+
+# Limpar currículos antigos mensalmente
+0 3 1 * * cd /path/to/project && python manage.py cleanup_old_curriculos --days 90 --force
+```
+
 ## 📝 Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
@@ -209,5 +279,24 @@ Para dúvidas ou problemas:
 - [ ] Análise de compatibilidade cultural
 - [ ] Sistema de notificações
 - [ ] Relatórios avançados
-- [ ] API REST para integração
+- [x] API REST para integração
+- [x] Sistema de limpeza automática de arquivos
 - [ ] Chatbot para candidatos
+
+## 🔗 Integração com N8N
+
+O sistema inclui APIs para integração com N8N, permitindo automação completa do envio de emails para candidatos.
+
+### APIs Disponíveis
+- **GET /api/curriculos-recentes/**: Busca currículos que precisam de email
+- **POST /api/marcar-email-enviado/**: Marca currículo como tendo recebido email
+
+### Configuração Rápida
+1. Execute o script de teste: `python test_api_n8n.py`
+2. Consulte o arquivo `INTEGRACAO_N8N.md` para instruções detalhadas
+3. Configure o workflow no N8N seguindo o guia
+
+### Templates de Email
+- **Aprovados**: Parabéns e agendamento de entrevista
+- **Em Análise**: Confirmação de recebimento
+- **Reprovados**: Agradecimento e feedback construtivo
