@@ -3,6 +3,7 @@ import docx
 import re
 import os
 import requests
+import time
 from dotenv import load_dotenv
 
 # Lista ampliada de palavras-chave para habilidades
@@ -34,6 +35,48 @@ HABILIDADES_CATEGORIZADAS = {
 # Carregar variáveis do .env
 load_dotenv()
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
+def fazer_requisicao_gemini_com_retry(url, data, headers, max_tentativas=3):
+    """
+    Faz requisição para a API Gemini com retry automático
+    """
+    for tentativa in range(max_tentativas):
+        try:
+            response = requests.post(url, json=data, headers=headers, timeout=30)
+            
+            # Se for erro 503, aguarda e tenta novamente
+            if response.status_code == 503:
+                if tentativa < max_tentativas - 1:  # Se não for a última tentativa
+                    tempo_espera = (tentativa + 1) * 5  # 5s, 10s, 15s
+                    print(f"⚠️  API indisponível (503). Tentativa {tentativa + 1}/{max_tentativas}. Aguardando {tempo_espera}s...")
+                    time.sleep(tempo_espera)
+                    continue
+                else:
+                    # Última tentativa falhou
+                    return None, 503
+            
+            response.raise_for_status()
+            return response, None
+            
+        except requests.exceptions.Timeout:
+            if tentativa < max_tentativas - 1:
+                tempo_espera = (tentativa + 1) * 3
+                print(f"⏰ Timeout. Tentativa {tentativa + 1}/{max_tentativas}. Aguardando {tempo_espera}s...")
+                time.sleep(tempo_espera)
+                continue
+            else:
+                return None, "timeout"
+                
+        except requests.exceptions.RequestException as e:
+            if tentativa < max_tentativas - 1:
+                tempo_espera = (tentativa + 1) * 2
+                print(f"🔌 Erro de conexão. Tentativa {tentativa + 1}/{max_tentativas}. Aguardando {tempo_espera}s...")
+                time.sleep(tempo_espera)
+                continue
+            else:
+                return None, str(e)
+    
+    return None, "max_tentativas_excedidas"
 
 # Função para análise/classificação via Gemini
 
@@ -98,19 +141,100 @@ Currículo:
         "contents": [{"parts": [{"text": prompt}]}]
     }
     try:
-        response = requests.post(url, json=data, headers=headers, timeout=20)
-        response.raise_for_status()
+        response, status_code = fazer_requisicao_gemini_com_retry(url, data, headers)
+        
+        if status_code == 503:
+            return {
+                "erro": "API temporariamente indisponível. Tente novamente em alguns minutos.",
+                "status_code": 503,
+                "classificacao": "analise manual",
+                "compatibilidade": "0%",
+                "justificativa": "Análise automática temporariamente indisponível. Será necessário análise manual.",
+                "melhorias_curriculo": {
+                    "experiencia_profissional": "Análise automática indisponível.",
+                    "habilidades_tecnicas": "Análise automática indisponível.",
+                    "formacao_academica": "Análise automática indisponível.",
+                    "idiomas": "Análise automática indisponível.",
+                    "estrutura_e_escrita": "Análise automática indisponível."
+                }
+            }
+        
+        if response is None:
+            return {
+                "erro": "Erro ao fazer requisição para a API Gemini.",
+                "classificacao": "analise manual",
+                "compatibilidade": "0%",
+                "justificativa": "Erro na análise automática. Será necessário análise manual.",
+                "melhorias_curriculo": {
+                    "experiencia_profissional": "Análise automática indisponível.",
+                    "habilidades_tecnicas": "Análise automática indisponível.",
+                    "formacao_academica": "Análise automática indisponível.",
+                    "idiomas": "Análise automática indisponível.",
+                    "estrutura_e_escrita": "Análise automática indisponível."
+                }
+            }
+        
         resposta = response.json()
+        
+        # Verificar se a resposta contém dados válidos
+        if 'candidates' not in resposta or not resposta['candidates']:
+            return {
+                "erro": "Resposta inválida da API",
+                "classificacao": "analise manual",
+                "compatibilidade": "0%",
+                "justificativa": "Erro na análise automática. Será necessário análise manual.",
+                "melhorias_curriculo": {
+                    "experiencia_profissional": "Análise automática indisponível.",
+                    "habilidades_tecnicas": "Análise automática indisponível.",
+                    "formacao_academica": "Análise automática indisponível.",
+                    "idiomas": "Análise automática indisponível.",
+                    "estrutura_e_escrita": "Análise automática indisponível."
+                }
+            }
+        
         texto_ia = resposta['candidates'][0]['content']['parts'][0]['text']
+        
         # Remover blocos markdown e tentar converter para dict
         import json, re
         texto_ia = re.sub(r'```json|```', '', texto_ia, flags=re.IGNORECASE).strip()
+        
         try:
-            return json.loads(texto_ia)
-        except Exception:
-            return {"resposta_ia": texto_ia}
+            resultado = json.loads(texto_ia)
+            # Verificar se o resultado tem a estrutura esperada
+            if 'classificacao' not in resultado:
+                raise ValueError("Estrutura de resposta inválida")
+            return resultado
+        except (json.JSONDecodeError, ValueError) as e:
+            # Se não conseguir fazer o parse, retorna resposta estruturada
+            return {
+                "erro": f"Erro ao processar resposta da IA: {str(e)}",
+                "classificacao": "analise manual",
+                "compatibilidade": "0%",
+                "justificativa": "Análise automática com erro. Será necessário análise manual.",
+                "resposta_ia": texto_ia,
+                "melhorias_curriculo": {
+                    "experiencia_profissional": "Análise automática indisponível.",
+                    "habilidades_tecnicas": "Análise automática indisponível.",
+                    "formacao_academica": "Análise automática indisponível.",
+                    "idiomas": "Análise automática indisponível.",
+                    "estrutura_e_escrita": "Análise automática indisponível."
+                }
+            }
+            
     except Exception as e:
-        return {"erro": str(e)}
+        return {
+            "erro": f"Erro inesperado: {str(e)}",
+            "classificacao": "analise manual",
+            "compatibilidade": "0%",
+            "justificativa": "Erro na análise automática. Será necessário análise manual.",
+            "melhorias_curriculo": {
+                "experiencia_profissional": "Análise automática indisponível.",
+                "habilidades_tecnicas": "Análise automática indisponível.",
+                "formacao_academica": "Análise automática indisponível.",
+                "idiomas": "Análise automática indisponível.",
+                "estrutura_e_escrita": "Análise automática indisponível."
+            }
+        }
 
 # Extrai texto de PDF
 def extrair_texto_pdf(caminho_arquivo):
