@@ -11,10 +11,21 @@
         input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
         button { margin-top: 20px; width: 100%; padding: 12px; background: #007bff; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
         button:hover { background: #0056b3; }
+        .nav-buttons { text-align: center; margin-bottom: 30px; }
+        .btn { display: inline-block; padding: 8px 16px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; transition: background 0.3s ease; margin: 0 5px; }
+        .btn:hover { background: #0056b3; }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #5a6268; }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="nav-buttons">
+            <a href="{% url 'listar_vagas' %}" class="btn">💼 Ver Vagas</a>
+            <a href="{% url 'dashboard_curriculos' %}" class="btn">📊 Dashboard</a>
+            <a href="/admin/" class="btn btn-secondary">⚙️ Administração</a>
+        </div>
+        
         <h2>Envie seu Currículo</h2>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
